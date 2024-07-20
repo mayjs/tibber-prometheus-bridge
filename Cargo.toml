@@ -1,0 +1,15 @@
+[package]
+name = "tibber_prometheus_adapter"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sml-rs = "0.4.0"
+hyper = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["full"] }
+reqwest = "0.12.5"
+error-chain = "0.12.4"
+rust_decimal = { version = "1.35.0", features = ["maths"] }
+axum = "0.7.5"
+clap = { version = "4.5.8", features = ["derive"] }
+
