@@ -1,4 +1,4 @@
-# Tibber Prometheus Adapter
+# Tibber Prometheus Bridge
 
 This is a little utility to get data from the Tibber power meter into Prometheus.
 It uses the local Tibber HTTP API.
@@ -39,7 +39,7 @@ If you configure your system using flakes, you can enable the bridge in your `fl
 inputs.tibber-prometheus-bridge.url = "github:mayjs/tibber-prometheus-bridge";
 
 outputs = { tibber-prometheus-bridge } : {
-  nixosConfigurations.yourSystem = in nixpkgs.lib.nixosSystem {
+  nixosConfigurations.yourSystem = nixpkgs.lib.nixosSystem {
     tibber-prometheus-bridge.nixosModules.default
     ({config, ... }: {
       age.secrets.tibber_pw = {
