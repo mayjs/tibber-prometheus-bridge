@@ -107,43 +107,43 @@
               };
             };
 
-            config =
-              mkIf cfg.enable {
-                users.users = mkIf (cfg.user == default_user_group) {
-                  "${default_user_group}" = {
-                    inherit (cfg) group;
-                    isSystemUser = true;
-                  };
+            config = mkIf cfg.enable {
+              users.users = mkIf (cfg.user == default_user_group) {
+                "${default_user_group}" = {
+                  inherit (cfg) group;
+                  isSystemUser = true;
                 };
-
-                users.groups = mkIf (cfg.group == default_user_group) {
-                  "${default_user_group}" = {};
-                };
-
-                systemd.services.tibber-prometheus-bridge = {
-                  enable = true;
-                  description = "Tibber Prometheus Bridge";
-                  wantedBy = ["multi-user.target"];
-                  serviceConfig = {
-                    Type = "simple";
-                    User = cfg.user;
-                    Group = cfg.group;
-                    ExecStart = "${self.packages.${system}.tibber-prometheus-bridge}/bin/tibber-prometheus-bridge -t ${cfg.tibber-host} -b ${cfg.bind-address}:${toString cfg.bind-port} -p ${cfg.tibber-admin-password-file}";
-                  };
-                };
-              }
-              // mkIf cfg.enable-prometheus-scrape {
-                services.prometheus.scrapeConfigs = [
-                  {
-                    job_name = cfg.prometheus-scrape-job-name;
-                    static_configs = [
-                      {
-                        targets = ["127.0.0.1:${toString cfg.bind-port}"];
-                      }
-                    ];
-                  }
-                ];
               };
+
+              users.groups = mkIf (cfg.group == default_user_group) {
+                "${default_user_group}" = {};
+              };
+
+              systemd.services.tibber-prometheus-bridge = {
+                enable = true;
+                description = "Tibber Prometheus Bridge";
+                after = ["network.target"];
+                wantedBy = ["multi-user.target"];
+                serviceConfig = {
+                  Type = "simple";
+                  User = cfg.user;
+                  Group = cfg.group;
+                  ExecStart = "${self.packages.${system}.tibber-prometheus-bridge}/bin/tibber-prometheus-bridge -t ${cfg.tibber-host} -b ${cfg.bind-address}:${toString cfg.bind-port} -p ${cfg.tibber-admin-password-file}";
+                  Restart = "on-failure";
+                };
+              };
+
+              services.prometheus.scrapeConfigs = mkIf cfg.enable-prometheus-scrape [
+                {
+                  job_name = cfg.prometheus-scrape-job-name;
+                  static_configs = [
+                    {
+                      targets = ["127.0.0.1:${toString cfg.bind-port}"];
+                    }
+                  ];
+                }
+              ];
+            };
           };
 
         default = tibber-prometheus-bridge;
