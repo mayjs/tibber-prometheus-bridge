@@ -1,5 +1,5 @@
 [package]
-name = "tibber_prometheus_adapter"
+name = "tibber-prometheus-bridge"
 version = "0.1.0"
 edition = "2021"
 
