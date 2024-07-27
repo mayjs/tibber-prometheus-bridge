@@ -185,10 +185,10 @@ async fn metrics(State(state): State<Arc<AppState>>) -> (StatusCode, String) {
     match fetch_result {
         Ok(data) => {
             let mut metrics_writer = MetricsWriter::new(String::new());
-            metrics_writer.start_metric("smartmeter_total_consumption_wh".to_string(), "The total consumption value in Wh", MetricKind::Counter).unwrap();
+            metrics_writer.start_metric("smartmeter_consumption_wh_total".to_string(), "The total consumption value in Wh", MetricKind::Counter).unwrap();
             metrics_writer.write_value(data.total_consumption_wh, &Vec::new()).unwrap();
 
-            metrics_writer.start_metric("smartmeter_current_power_w".to_string(), "The current power in W", MetricKind::Gauge).unwrap();
+            metrics_writer.start_metric("smartmeter_power_w".to_string(), "The current power in W", MetricKind::Gauge).unwrap();
             metrics_writer.write_value(data.current_power_w, &Vec::new()).unwrap();
 
             let metrics = metrics_writer.finalize();
