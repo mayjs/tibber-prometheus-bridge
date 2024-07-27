@@ -63,6 +63,7 @@
         }:
           with lib; let
             cfg = config.services.tibber-prometheus-bridge;
+            default_user_group = "tibber-bridge";
           in {
             options.services.tibber-prometheus-bridge = {
               enable = mkEnableOption "the Tibber Prometheus Bridge";
@@ -95,17 +96,29 @@
 
               user = mkOption {
                 type = types.str;
-                default = "tibber-bridge";
+                default = default_user_group;
+                description = "The user to run as.";
+              };
+
+              group = mkOption {
+                type = types.str;
+                default = default_user_group;
+                description = "The group to run as";
               };
             };
 
             config =
               mkIf cfg.enable {
-                users.users.${cfg.user} = {
-                  isNormalUser = true;
-                  group = cfg.user;
+                users.users = mkIf (cfg.user == default_user_group) {
+                  "${default_user_group}" = {
+                    inherit (cfg) group;
+                    isSystemUser = true;
+                  };
                 };
-                users.groups.${cfg.user} = {};
+
+                users.groups = mkIf (cfg.group == default_user_group) {
+                  "${default_user_group}" = {};
+                };
 
                 systemd.services.tibber-prometheus-bridge = {
                   enable = true;
@@ -114,6 +127,7 @@
                   serviceConfig = {
                     Type = "simple";
                     User = cfg.user;
+                    Group = cfg.group;
                     ExecStart = "${self.packages.${system}.tibber-prometheus-bridge}/bin/tibber-prometheus-bridge -t ${cfg.tibber-host} -b ${cfg.bind-address}:${toString cfg.bind-port} -p ${cfg.tibber-admin-password-file}";
                   };
                 };
