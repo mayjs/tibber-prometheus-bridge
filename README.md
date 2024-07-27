@@ -29,8 +29,38 @@ Options:
 For example, assuming you stored your admin password in a file called `tibber_pw`, you can start the bridge like this: `tibber-prometheus-bridge -p tibber_pw`.
 You should then be able to access your consumption data: http://localhost:8080/metrics .
 
-## On NixOS
+## Integrating with NixOS
 
 This repository also provides a flake with a NixOS module for easy integration with NixOS systems.
-Details need to be added for this.
+
+If you configure your system using flakes, you can enable the bridge in your `flake.nix` like this:
+
+```nix
+inputs.tibber-prometheus-bridge.url = "github:mayjs/tibber-prometheus-bridge";
+
+outputs = { tibber-prometheus-bridge } : {
+  nixosConfigurations.yourSystem = in nixpkgs.lib.nixosSystem {
+    tibber-prometheus-bridge.nixosModules.default
+    ({config, ... }: {
+      age.secrets.tibber_pw = {
+        file = ./secrets/tibber_pw.age;
+        owner = config.services.tibber-prometheus-bridge.user;
+      };
+
+      services.tibber-prometheus-bridge = {
+        enable = true; # Enable the bridge service itself
+        enable-prometheus-scrape = true; # Enable the Prometheus scrape config to locally scrape the Prometheus data
+        tibber-admin-password-file = config.age.secrets.tibber_pw.path;
+      };
+    })
+  };
+};
+```
+
+This assumes that you use [agenix](https://github.com/ryantm/agenix) to manage your secrets.
+If you don't use `agenix`, you can substitute your preferred way to get the path to your Tibber admin password in `tibber-admin-password-file`.
+
+## Visualizing in Grafana
+
+You can find an example configuration for a Grafana dashboard in [example_grafana_dashboard.json](./example_grafana_dashboard.json).
 
