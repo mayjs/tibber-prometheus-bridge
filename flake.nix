@@ -121,7 +121,7 @@
               // mkIf cfg.enable-prometheus-scrape {
                 services.prometheus.scrapeConfigs = [
                   {
-                    job_name = "beira";
+                    job_name = cfg.prometheus-scrape-job-name;
                     static_configs = [
                       {
                         targets = ["127.0.0.1:${toString cfg.bind-port}"];
