@@ -58,7 +58,7 @@
         tibber-prometheus-bridge = {
           lib,
           config,
-          system,
+          pkgs,
           ...
         }:
           with lib; let
@@ -128,7 +128,7 @@
                   Type = "simple";
                   User = cfg.user;
                   Group = cfg.group;
-                  ExecStart = "${self.packages.${system}.tibber-prometheus-bridge}/bin/tibber-prometheus-bridge -t ${cfg.tibber-host} -b ${cfg.bind-address}:${toString cfg.bind-port} -p ${cfg.tibber-admin-password-file}";
+                  ExecStart = "${self.packages.${pkgs.system}.tibber-prometheus-bridge}/bin/tibber-prometheus-bridge -t ${cfg.tibber-host} -b ${cfg.bind-address}:${toString cfg.bind-port} -p ${cfg.tibber-admin-password-file}";
                   Restart = "on-failure";
                 };
               };
